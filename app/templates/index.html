@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCEND</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>ASCEND</h1>
+        <div class="subtitle">Level Up Your Life</div>
+
+        <div class="status-card">
+            <div class="player-info">
+                <span class="player-name">⚡ {{ usuario.name }}</span>
+                <span class="player-level">NÍVEL {{ usuario.level }}</span>
+            </div>
+            <div class="xp-container">
+                <div class="xp-bar-fill" style="--target-width: {{ usuario.xp }}%;"></div>
+            </div>
+            <span class="xp-text">{{ usuario.xp }} / 100 XP</span>
+        </div>
+
+        <div class="creation-panel">
+            <div class="panel-title">Nova Missão</div>
+            
+            <form action="/missions/create" method="POST" class="form-group">
+                <input type="text" name="title" placeholder="O que você vai dominar hoje?" required class="input-custom">
+                <select name="xp_reward" class="select-custom">
+                    <option value="10">+10 XP (Fácil)</option>
+                    <option value="20">+20 XP (Média)</option>
+                    <option value="30">+30 XP (Difícil)</option>
+                </select>
+                <button type="submit" class="btn-add">+</button>
+            </form>
+
+            <div class="suggestions-container">
+                <span class="suggestion-label">Atalhos:</span>
+                
+                <form action="/missions/create" method="POST" style="margin: 0;">
+                    <input type="hidden" name="title" value="Leitura Diária">
+                    <input type="hidden" name="xp_reward" value="10">
+                    <button type="submit" class="btn-suggestion">📖 Leitura</button>
+                </form>
+
+                <form action="/missions/create" method="POST" style="margin: 0;">
+                    <input type="hidden" name="title" value="Treino / Academia">
+                    <input type="hidden" name="xp_reward" value="20">
+                    <button type="submit" class="btn-suggestion">💪 Academia</button>
+                </form>
+
+                <form action="/missions/create" method="POST" style="margin: 0;">
+                    <input type="hidden" name="title" value="Estudar TI / Programação">
+                    <input type="hidden" name="xp_reward" value="25">
+                    <button type="submit" class="btn-suggestion">💻 Estudar TI</button>
+                </form>
+            </div>
+        </div>
+
+        <h3 style="font-size: 18px; margin-bottom: 15px; letter-spacing: 0.5px;">Missões de Hoje</h3>
+        
+        <div style="max-height: 380px; overflow-y: auto; padding-right: 8px; margin-bottom: 20px;">
+            <ul class="mission-list">
+                {% if usuario.missions %}
+                   {% for missao in usuario.missions %}
+                        <li class="mission-item">
+                            <div>
+                                <span class="mission-title" style="{{ 'text-decoration: line-through; color: #444;' if missao.completed else '' }}">
+                                    {{ missao.title }}
+                                </span>
+                                <span class="mission-xp">Recompensa: +{{ missao.xp_reward }} XP</span>
+                            </div>
+
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                {% if not missao.completed %}
+                                    <form action="/missions/{{ missao.id }}/complete" method="POST" style="margin: 0;">
+                                        <button type="submit" class="btn-complete">Concluir</button>
+                                    </form>
+                                {% else %}
+                                    <span class="status-done">// COMPLETA</span>
+                                {% endif %}
+
+                                <form action="/missions/{{ missao.id }}/delete" method="POST" style="margin: 0;" class="delete-form">
+                                    <button type="button" class="btn-delete-trigger" style="background: transparent; color: #555; border: none; cursor: pointer; font-size: 16px; padding: 5px; transition: color 0.2s;" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='#555'">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li style="color: #444; list-style: none;">Nenhuma missão ativa para hoje. Defina uma acima!</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div> <div id="custom-confirm-modal" class="modal-overlay">
+        <div class="modal-card">
+            <p class="modal-text">Deseja mesmo excluir esta missão?</p>
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="btn-modal-secondary">Cancelar</button>
+                <button id="modal-confirm-btn" class="btn-modal-danger">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+        let formParaDeletar = null;
+        const modal = document.getElementById('custom-confirm-modal');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+
+        // Captura todos os botões de lixeira da tela
+        document.querySelectorAll('.btn-delete-trigger').forEach(button => {
+            button.addEventListener('click', (e) => {
+                formParaDeletar = e.target.closest('.delete-form');
+                modal.classList.add('modal-active');
+            });
+        });
+
+        // Cancelar fecha o modal
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.remove('modal-active');
+            formParaDeletar = null;
+        });
+
+        // SE CLICAR EM EXCLUIR: MÁGICA SEM REFRESH (AJAX)
+        confirmBtn.addEventListener('click', async () => {
+            if (formParaDeletar) {
+                const url = formParaDeletar.action; 
+
+                try {
+                    // Envia a requisição de deletar em segundo plano para o Python
+                    const response = await fetch(url, { method: 'POST' });
+
+                    if (response.ok) {
+                        // Se o Python deletou com sucesso no banco, achamos o elemento <li> da missão
+                        const itemMissao = formParaDeletar.closest('.mission-item');
+                        
+                        // Fecha o modal
+                        modal.classList.remove('modal-active');
+
+                        // Adiciona uma transição suave no CSS para sumir com o item
+                        itemMissao.style.transition = "all 0.4s ease";
+                        itemMissao.style.opacity = "0";
+                        itemMissao.style.transform = "translateX(30px)"; // Desliza para o lado
+
+                        // Depois de 400 milissegundos (o tempo da animação), remove o elemento do HTML
+                        setTimeout(() => {
+                            itemMissao.remove();
+                        }, 400);
+
+                    } else {
+                        alert("Erro ao deletar a missão no servidor.");
+                    }
+                } catch (error) {
+                    console.error("Erro na requisição:", error);
+                } finally {
+                    formParaDeletar = null;
+                }
+            }
+        });
+
+        // Fecha o modal se clicar fora do card
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('modal-active');
+                formParaDeletar = null;
+            }
+        });
+    </script>
+</body>
+</html>

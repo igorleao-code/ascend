@@ -1,0 +1,381 @@
+/* Paleta de Cores Customizada - ASCEND */
+:root {
+    --bg-main: #0A0A0A;          /* Preto absoluto de fundo */
+    --bg-panel: #1C1C1C;         /* Cinza escuro para os blocos */
+    --bg-card: #262626;          /* Variação para missões e inputs */
+    --border-color: #363636;     /* Linhas e divisórias discretas */
+    --text-muted: #4F4F4F;       /* Detalhes de menor importância */
+    
+    /* Cores de Destaque */
+    --blue-royal: #4169E1;
+    --blue-slate: #6A5ACD;
+    --text-main: #FFFFFF;
+    --accent-neon: #00F5D4;      /* Detalhe ciano para conquistas */
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 50px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+}
+
+h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0 0 5px 0;
+    background: linear-gradient(135deg, var(--text-main), #A0A0A0);
+    -webkit-background-clip: text; /* Mantém para compatibilidade */
+    background-clip: text;         /* <-- Adicione esta linha padrão */
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+/* --- PLAYER STATUS CARD --- */
+.status-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.player-name {
+    font-weight: 700;
+}
+
+.player-level {
+    background: linear-gradient(90deg, var(--blue-royal), var(--blue-slate));
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Animação da Barra de XP */
+.xp-container {
+    background: #000000;
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #252525;
+}
+
+.xp-bar-fill {
+    background: linear-gradient(90deg, var(--blue-royal), var(--blue-slate));
+    height: 100%;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(106, 90, 205, 0.4);
+    
+    /* Aciona a animação ao carregar a página */
+    animation: encherBarra 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Define a animação: vai de largura 0 até a largura que o HTML injetou */
+@keyframes encherBarra {
+    from { width: 0%; }
+    to { width: var(--target-width); }
+}
+
+.xp-text {
+    font-size: 12px;
+    color: #555;
+    margin-top: 6px;
+    display: block;
+    text-align: right;
+}
+
+/* --- PAINEL DE CRIAÇÃO --- */
+.creation-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.panel-title {
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.input-custom {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.input-custom:focus {
+    border-color: var(--blue-royal);
+}
+
+.select-custom {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+}
+
+.btn-add {
+    background: var(--text-main);
+    color: var(--bg-main);
+    border: none;
+    padding: 0 20px;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-add:hover {
+    background: #E0E0E0;
+}
+
+/* Sugestões Rápidas */
+.suggestions-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.suggestion-label {
+    font-size: 12px;
+    color: #555;
+}
+
+.btn-suggestion {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: #AAA;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-suggestion:hover {
+    border-color: var(--blue-royal);
+    color: var(--text-main);
+    background: rgba(65, 105, 225, 0.05);
+}
+
+/* --- LISTA DE MISSÕES --- */
+.mission-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px;    /* Limita o tamanho vertical da lista */
+    overflow-y: auto;     /* Cria o scroll se passar do tamanho */
+    padding-right: 5px;
+}
+
+/* Customizando a barra de rolagem para ficar invisível/elegante */
+.mission-list::-webkit-scrollbar {
+    width: 4px;
+}
+.mission-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+.mission-item {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mission-title {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.mission-xp {
+    color: #666;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+.btn-complete {
+    background: transparent;
+    border: 1px solid var(--text-main);
+    color: var(--text-main);
+    padding: 8px 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.btn-complete:hover {
+    background: var(--text-main);
+    color: var(--bg-main);
+}
+
+.status-done {
+    color: var(--accent-neon);
+    font-weight: bold;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+/* Customização global da barra de rolagem para navegadores Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 6px; /* Largura da barra */
+}
+
+::-webkit-scrollbar-track {
+    background: #0A0A0A; /* Cor do fundo da barra */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #363636; /* Cor do pino que mexe */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4169E1; /* O pino fica azul royal quando você passa o mouse! */
+}
+
+/* --- MODAL DE CONFIRMAÇÃO CUSTOMIZADO --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Fundo preto transparente */
+    backdrop-filter: blur(4px);    /* Efeito de vidro borrado ao fundo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+}
+
+/* Quando adicionamos essa classe via JS, o modal aparece suavemente */
+.modal-overlay.modal-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.modal-overlay.modal-active .modal-card {
+    transform: scale(1);
+}
+
+.modal-text {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: var(--text-main);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-modal-secondary {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: #AAA;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-secondary:hover {
+    color: var(--text-main);
+    border-color: #555;
+}
+
+.btn-modal-danger {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-modal-danger:hover {
+    opacity: 0.9;
+    box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
+}

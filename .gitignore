@@ -1,0 +1,11 @@
+# Banco de dados local (Nunca subir!)
+*.db
+
+__pycache__/
+*.pyc
+
+venv/
+.venv/
+env/
+
+.vscode/
