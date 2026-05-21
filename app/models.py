@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Date
-from sqlalchemy.orm import declarative_base, relationship
-from datetime import datetime, timezone, date, timedelta
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+# Importa o ÚNICO Base que existe no projeto
+from app.database import Base
 
-Base = declarative_base()
+# === USUÁRIO ===
 
 
-#  USUÁRIO
 class User(Base):
     __tablename__ = "users"
 
@@ -15,10 +15,11 @@ class User(Base):
     level = Column(Integer, default=1)
     xp = Column(Integer, default=0)
 
-    # O streak geral saiu daqui!
-    missions = relationship("Mission", back_populates="owner")
+    # RELAÇÃO: Diz ao SQLAlchemy que o Usuário tem várias missões
+    missions = relationship(
+        "Mission", back_populates="dono", cascade="all, delete-orphan")
 
-# MISSÕES
+# === MISSÕES ===
 
 
 class Mission(Base):
@@ -26,16 +27,14 @@ class Mission(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    xp_reward = Column(Integer)
+    xp_reward = Column(Integer, default=10)
     completed = Column(Boolean, default=False)
     is_daily = Column(Boolean, default=True)
-    completed_at = Column(DateTime, nullable=True)
+    last_completed_date = Column(String, nullable=True)
 
-    # --- AGORA CADA MISSÃO TEM SEU PRÓPRIO FOGO ---
-    # Dias seguidos desta missão
     streak = Column(Integer, default=0)
-    # Último dia que você concluiu ELA
-    last_completed_date = Column(Date, nullable=True)
+    # CHAVE ESTRANGEIRA: O vínculo real no banco de dados
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    user_id = Column(Integer, ForeignKey("users.id"))
-    owner = relationship("User", back_populates="missions")
+    # RELAÇÃO: Permite fazer "missao.dono" para ver os dados do usuário
+    dono = relationship("User", back_populates="missions")

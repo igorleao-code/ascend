@@ -1,3 +1,4 @@
+import time
 from fastapi import FastAPI, Depends, Request, HTTPException, status, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -41,27 +42,38 @@ def atualizar_ofensivas_da_casa(user, db: Session):
 # === 2. ROTA DA PÁGINA INICIAL ===
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
+    # 1. Garante que as tabelas existem no banco
     Base.metadata.create_all(bind=engine)
+
+    # 2. Busca o primeiro usuário
     usuario_real = db.query(User).first()
 
+    # 3. Se não existir, cria o usuário "Igor"
     if not usuario_real:
-        # Criando apenas o usuário padrão limpo e bem estruturado
         usuario_real = User(
             name="Igor", email="igor@email.com", level=1, xp=30)
         db.add(usuario_real)
         db.commit()
         db.refresh(usuario_real)
 
-    # Executa a validação do calendário antes de renderizar a página
-    atualizar_ofensivas_da_casa(usuario_real, db)
+    # 4. Busca as missões QUE PERTENCEM a esse usuário específico
+    # (Em vez de buscar todas as missões globais)
+    missoes_do_usuario = db.query(Mission).filter(
+        Mission.user_id == usuario_real.id).all()
 
+    # 5. Envia o usuário e as missões dele para o HTML
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "usuario": usuario_real}
+        {
+            "request": request,
+            "usuario": usuario_real,
+            "missions": missoes_do_usuario  # <-- Garanta que está a enviar as missões aqui!
+        }
     )
 
-
 # === 3. ROTA DE CONCLUIR MISSÃO ===
+
+
 @app.post("/missions/{mission_id}/complete")
 def complete_mission(mission_id: int, db: Session = Depends(get_db)):
     missao = db.query(models.Mission).filter(
@@ -105,16 +117,27 @@ def create_mission(
     xp_reward: int = Form(10),
     db: Session = Depends(get_db)
 ):
+    # Busca o usuário no banco de dados
     usuario = db.query(User).first()
+
+    # Segurança básica: se não houver usuário criado, impede a ação
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-    nova_missao = Mission(title=title, xp_reward=xp_reward,
-                          is_daily=True, user_id=usuario.id)
+    # Cria o objeto da nova missão vinculando ao ID do usuário encontrado
+    nova_missao = Mission(
+        title=title,
+        xp_reward=xp_reward,
+        is_daily=True,
+        user_id=usuario.id  # <-- O vínculo que ativa a Chave Estrangeira
+    )
+
+    # Salva as alterações no banco de dados
     db.add(nova_missao)
     db.commit()
 
-    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    # Redireciona de volta para a página inicial com o "Cache-Buster"
+    return RedirectResponse(url=f"/?t={time.time()}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 # === 5. ROTA DE DELETAR MISSÃO (AJAX) ===
