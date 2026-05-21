@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASCEND</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}?v=1.2">
 </head>
 <body>
     <div class="container">
@@ -27,147 +27,148 @@
             
             <form action="/missions/create" method="POST" class="form-group">
                 <input type="text" name="title" placeholder="O que você vai dominar hoje?" required class="input-custom">
-                <select name="xp_reward" class="select-custom">
-                    <option value="10">+10 XP (Fácil)</option>
-                    <option value="20">+20 XP (Média)</option>
-                    <option value="30">+30 XP (Difícil)</option>
-                </select>
-                <button type="submit" class="btn-add">+</button>
-            </form>
-
-            <div class="suggestions-container">
-                <span class="suggestion-label">Atalhos:</span>
                 
-                <form action="/missions/create" method="POST" style="margin: 0;">
-                    <input type="hidden" name="title" value="Leitura Diária">
-                    <input type="hidden" name="xp_reward" value="10">
-                    <button type="submit" class="btn-suggestion">📖 Leitura</button>
-                </form>
-
-                <form action="/missions/create" method="POST" style="margin: 0;">
-                    <input type="hidden" name="title" value="Treino / Academia">
-                    <input type="hidden" name="xp_reward" value="20">
-                    <button type="submit" class="btn-suggestion">💪 Academia</button>
-                </form>
-
-                <form action="/missions/create" method="POST" style="margin: 0;">
-                    <input type="hidden" name="title" value="Estudar TI / Programação">
-                    <input type="hidden" name="xp_reward" value="25">
-                    <button type="submit" class="btn-suggestion">💻 Estudar TI</button>
-                </form>
-            </div>
+                <input type="hidden" name="xp_reward" id="xp_reward" value="10">
+                <input type="hidden" name="is_daily" value="True">
+                
+                <div class="difficulty-buttons">
+                    <button type="button" class="btn-diff" onclick="selectDifficulty(10, this, '#2ecc71')" style="border: 2px solid #2ecc71; background: #2ecc71; color: white;">Fácil (+10)</button>
+                    <button type="button" class="btn-diff" onclick="selectDifficulty(20, this, '#f1c40f')">Média (+20)</button>
+                    <button type="button" class="btn-diff" onclick="selectDifficulty(30, this, '#e74c3c')">Difícil (+30)</button>
+                </div>
+                
+                <button type="submit" class="btn-add">Adicionar Missão</button>
+            </form>
         </div>
 
-        <h3 style="font-size: 18px; margin-bottom: 15px; letter-spacing: 0.5px;">Missões de Hoje</h3>
-        
-        <div style="max-height: 380px; overflow-y: auto; padding-right: 8px; margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="showTab('pending')" class="btn-tab active">Pendentes</button>
+            <button onclick="showTab('history')" class="btn-tab">Histórico</button>
+        </div>
+
+        <div id="pending-tab">
             <ul class="mission-list">
-                {% if usuario.missions %}
-                   {% for missao in usuario.missions %}
-                        <li class="mission-item">
+                {% for missao in usuario.missions %}
+                    {% if not missao.completed %}
+                        <li class="mission-item" id="mission-{{ missao.id }}">
                             <div>
-                                <span class="mission-title" style="{{ 'text-decoration: line-through; color: #444;' if missao.completed else '' }}">
+                                <span class="mission-title">
                                     {{ missao.title }}
+                                    {% if missao.streak > 0 %}
+                                        <span class="streak-badge {% if missao.streak >= 7 %}streak-high{% elif missao.streak >= 3 %}streak-mid{% else %}streak-low{% endif %}">
+                                            <span class="icon-fire"></span>
+                                            {{ missao.streak }}d
+                                        </span>
+                                    {% endif %}
                                 </span>
-                                <span class="mission-xp">Recompensa: +{{ missao.xp_reward }} XP</span>
+                                <span class="mission-xp">+{{ missao.xp_reward }} XP</span>
                             </div>
-
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                {% if not missao.completed %}
-                                    <form action="/missions/{{ missao.id }}/complete" method="POST" style="margin: 0;">
-                                        <button type="submit" class="btn-complete">Concluir</button>
-                                    </form>
-                                {% else %}
-                                    <span class="status-done">// COMPLETA</span>
-                                {% endif %}
-
-                                <form action="/missions/{{ missao.id }}/delete" method="POST" style="margin: 0;" class="delete-form">
-                                    <button type="button" class="btn-delete-trigger" style="background: transparent; color: #555; border: none; cursor: pointer; font-size: 16px; padding: 5px; transition: color 0.2s;" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='#555'">
-                                        🗑️
-                                    </button>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <form action="/missions/{{ missao.id }}/complete" method="POST" style="margin:0;">
+                                    <button type="submit" class="btn-complete">Concluir</button>
                                 </form>
+                                <button onclick="confirmDelete('{{ missao.id }}')" style="background:none; border:none; cursor:pointer; font-size:16px;">🗑️</button>
                             </div>
                         </li>
-                    {% endfor %}
+                    {% endif %}
                 {% else %}
-                    <li style="color: #444; list-style: none;">Nenhuma missão ativa para hoje. Defina uma acima!</li>
-                {% endif %}
+                    <p style="color: #666; font-size: 14px;">Nenhuma missão pendente para hoje! 🎯</p>
+                {% endfor %}
             </ul>
         </div>
-    </div> <div id="custom-confirm-modal" class="modal-overlay">
+
+        <div id="history-tab" style="display: none;">
+            <ul class="mission-list">
+                {% for missao in usuario.missions %}
+                    {% if missao.completed %}
+                        <li class="mission-item">
+                            <div>
+                                <span class="mission-title" style="text-decoration: line-through; color: #666;">
+                                    {{ missao.title }}
+                                    {% if missao.streak > 0 %}
+                                        <span class="streak-badge {% if missao.streak >= 7 %}streak-high{% elif missao.streak >= 3 %}streak-mid{% else %}streak-low{% endif %}">
+                                            <span class="icon-fire"></span>
+                                            {{ missao.streak }}d
+                                        </span>
+                                    {% endif %}
+                                </span>
+                                <span class="mission-xp" style="color: #444;">Recompensa resgatada</span>
+                            </div>
+                            <div>
+                                <span class="status-done">Concluída</span>
+                            </div>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <p style="color: #666; font-size: 14px;">Nenhuma missão concluída ainda. Comece a subir de nível! 🚀</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </div> <div class="modal-overlay" id="modal-delete">
         <div class="modal-card">
-            <p class="modal-text">Deseja mesmo excluir esta missão?</p>
+            <div class="modal-text">Deseja mesmo banir esta missão do seu registro?</div>
             <div class="modal-actions">
-                <button id="modal-cancel-btn" class="btn-modal-secondary">Cancelar</button>
-                <button id="modal-confirm-btn" class="btn-modal-danger">Excluir</button>
+                <button onclick="closeModal()" class="btn-modal-secondary">Cancelar</button>
+                <button id="btn-confirm-delete" class="btn-modal-danger">Deletar</button>
             </div>
         </div>
     </div>
 
-<script>
-        let formParaDeletar = null;
-        const modal = document.getElementById('custom-confirm-modal');
-        const cancelBtn = document.getElementById('modal-cancel-btn');
-        const confirmBtn = document.getElementById('modal-confirm-btn');
+    <script>
+        let missionIdToDelete = null;
 
-        // Captura todos os botões de lixeira da tela
-        document.querySelectorAll('.btn-delete-trigger').forEach(button => {
-            button.addEventListener('click', (e) => {
-                formParaDeletar = e.target.closest('.delete-form');
-                modal.classList.add('modal-active');
+        // Lógica dos Botões de Dificuldade
+        function selectDifficulty(xp, element, color) {
+            document.getElementById('xp_reward').value = xp;
+            
+            document.querySelectorAll('.btn-diff').forEach(btn => {
+                btn.style.border = '1px solid var(--border-color)';
+                btn.style.backgroundColor = 'var(--bg-card)';
+                btn.style.color = '#aaa';
             });
-        });
+            
+            element.style.border = `2px solid ${color}`;
+            element.style.backgroundColor = color;
+            element.style.color = 'white';
+        }
 
-        // Cancelar fecha o modal
-        cancelBtn.addEventListener('click', () => {
-            modal.classList.remove('modal-active');
-            formParaDeletar = null;
-        });
+        // Lógica de Abas
+        function showTab(tabName) {
+            document.getElementById('pending-tab').style.display = (tabName === 'pending') ? 'block' : 'none';
+            document.getElementById('history-tab').style.display = (tabName === 'history') ? 'block' : 'none';
+            
+            document.querySelectorAll('.btn-tab').forEach(btn => btn.classList.remove('active'));
+            if (tabName === 'pending') {
+                document.querySelectorAll('.btn-tab')[0].classList.add('active');
+            } else {
+                document.querySelectorAll('.btn-tab')[1].classList.add('active');
+            }
+        }
 
-        // SE CLICAR EM EXCLUIR: MÁGICA SEM REFRESH (AJAX)
-        confirmBtn.addEventListener('click', async () => {
-            if (formParaDeletar) {
-                const url = formParaDeletar.action; 
+        // Lógica do Modal e AJAX de Deletar
+        function confirmDelete(id) {
+            missionIdToDelete = id;
+            document.getElementById('modal-delete').classList.add('modal-active');
+        }
 
-                try {
-                    // Envia a requisição de deletar em segundo plano para o Python
-                    const response = await fetch(url, { method: 'POST' });
+        function closeModal() {
+            document.getElementById('modal-delete').classList.remove('modal-active');
+            missionIdToDelete = null;
+        }
 
-                    if (response.ok) {
-                        // Se o Python deletou com sucesso no banco, achamos o elemento <li> da missão
-                        const itemMissao = formParaDeletar.closest('.mission-item');
-                        
-                        // Fecha o modal
-                        modal.classList.remove('modal-active');
-
-                        // Adiciona uma transição suave no CSS para sumir com o item
-                        itemMissao.style.transition = "all 0.4s ease";
-                        itemMissao.style.opacity = "0";
-                        itemMissao.style.transform = "translateX(30px)"; // Desliza para o lado
-
-                        // Depois de 400 milissegundos (o tempo da animação), remove o elemento do HTML
-                        setTimeout(() => {
-                            itemMissao.remove();
-                        }, 400);
-
-                    } else {
-                        alert("Erro ao deletar a missão no servidor.");
+        document.getElementById('btn-confirm-delete').onclick = function() {
+            if (missionIdToDelete) {
+                fetch(`/missions/${missionIdToDelete}/delete`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        const elemento = document.getElementById(`mission-${missionIdToDelete}`);
+                        if (elemento) elemento.remove();
+                        closeModal();
                     }
-                } catch (error) {
-                    console.error("Erro na requisição:", error);
-                } finally {
-                    formParaDeletar = null;
-                }
+                });
             }
-        });
-
-        // Fecha o modal se clicar fora do card
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('modal-active');
-                formParaDeletar = null;
-            }
-        });
+        };
     </script>
 </body>
 </html>

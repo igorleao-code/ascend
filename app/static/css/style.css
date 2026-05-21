@@ -34,8 +34,8 @@ h1 {
     letter-spacing: -1px;
     margin: 0 0 5px 0;
     background: linear-gradient(135deg, var(--text-main), #A0A0A0);
-    -webkit-background-clip: text; /* Mantém para compatibilidade */
-    background-clip: text;         /* <-- Adicione esta linha padrão */
+    -webkit-background-clip: text; 
+    background-clip: text;         
     -webkit-text-fill-color: transparent;
 }
 
@@ -92,12 +92,9 @@ h1 {
     height: 100%;
     border-radius: 6px;
     box-shadow: 0 0 10px rgba(106, 90, 205, 0.4);
-    
-    /* Aciona a animação ao carregar a página */
     animation: encherBarra 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-/* Define a animação: vai de largura 0 até a largura que o HTML injetou */
 @keyframes encherBarra {
     from { width: 0%; }
     to { width: var(--target-width); }
@@ -118,6 +115,9 @@ h1 {
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 30px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .panel-title {
@@ -131,19 +131,24 @@ h1 {
 
 .form-group {
     display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
 }
 
 .input-custom {
-    flex: 1;
-    background: var(--bg-card);
+    flex: 1;                
+    min-width: 200px;       
+    padding: 12px 15px;     
+    background-color: #222; 
+    color: #fff;
     border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 14px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
+    box-sizing: border-box; 
     transition: border 0.2s;
 }
 
@@ -162,20 +167,45 @@ h1 {
     outline: none;
 }
 
-.btn-add {
-    background: var(--text-main);
-    color: var(--bg-main);
-    border: none;
-    padding: 0 20px;
+/* Botões de Dificuldade */
+.difficulty-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+}
+
+.btn-diff {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: #aaa;
+    cursor: pointer;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 13px;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+/* Botão de Envio (Gradiente) */
+.btn-add {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+    flex-shrink: 0;          
+    white-space: nowrap;     
 }
 
 .btn-add:hover {
-    background: #E0E0E0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
 }
 
 /* Sugestões Rápidas */
@@ -184,6 +214,7 @@ h1 {
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
+    margin-top: 15px;
 }
 
 .suggestion-label {
@@ -208,17 +239,40 @@ h1 {
     background: rgba(65, 105, 225, 0.05);
 }
 
+/* --- ESTILIZAÇÃO DOS BOTÕES DAS ABAS --- */
+.btn-tab {
+    padding: 8px 16px;
+    background: #2a2a2a;
+    color: #aaaaaa;
+    border: 1px solid #444;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.btn-tab:hover { 
+    background: #3d3d3d; 
+    color: #ffffff;
+}
+
+.btn-tab.active {
+    background: var(--blue-royal); 
+    border-color: var(--blue-royal);
+    color: #ffffff;
+}
+
 /* --- LISTA DE MISSÕES --- */
 .mission-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 400px;    /* Limita o tamanho vertical da lista */
-    overflow-y: auto;     /* Cria o scroll se passar do tamanho */
+    max-height: 400px;    
+    overflow-y: auto;     
     padding-right: 5px;
 }
 
-/* Customizando a barra de rolagem para ficar invisível/elegante */
 .mission-list::-webkit-scrollbar {
     width: 4px;
 }
@@ -274,22 +328,83 @@ h1 {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-/* Customização global da barra de rolagem para navegadores Webkit (Chrome, Edge, Safari) */
+
+/* Customização global da barra de rolagem */
 ::-webkit-scrollbar {
-    width: 6px; /* Largura da barra */
+    width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-    background: #0A0A0A; /* Cor do fundo da barra */
+    background: #0A0A0A;
 }
-
 ::-webkit-scrollbar-thumb {
-    background: #363636; /* Cor do pino que mexe */
+    background: #363636;
     border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-    background: #4169E1; /* O pino fica azul royal quando você passa o mouse! */
+    background: #4169E1;
+}
+
+/* --- SISTEMA DE OFENSIVAS (FOGO GRADIENTE - MODELO MINIMALISTA) --- */
+.streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.icon-fire {
+    width: 18px;
+    height: 18px;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.14-1.84-2.01-.45-.97-.25-2.17.43-3.01.06-.08.01-.2-.09-.19-.74.09-1.47.46-1.95 1.02-.96 1.14-1.1 2.87-.33 4.22.1.18-.02.41-.22.37-.29-.07-.58-.15-.88-.26-.87-.3-1.63-.87-2.12-1.69-.06-.1-.21-.06-.21.06.02.43.1.86.26 1.27.42 1.07 1.24 1.94 2.21 2.52.17.1.13.37-.07.41-.65.13-1.33-.03-1.91-.35-.13-.07-.29.03-.25.18.23.85.83 1.57 1.57 2.02.66.4 1.44.57 2.21.46.21-.03.35.21.21.37-.43.51-1.05.86-1.72.95-.14.02-.19.2-.08.28.79.57 1.76.88 2.74.88 2.43 0 4.47-1.8 4.71-4.17.26-2.48-1.11-4.66-3.15-5.56z'/%3E%3C/svg%3E") no-repeat center;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.14-1.84-2.01-.45-.97-.25-2.17.43-3.01.06-.08.01-.2-.09-.19-.74.09-1.47.46-1.95 1.02-.96 1.14-1.1 2.87-.33 4.22.1.18-.02.41-.22.37-.29-.07-.58-.15-.88-.26-.87-.3-1.63-.87-2.12-1.69-.06-.1-.21-.06-.21.06.02.43.1.86.26 1.27.42 1.07 1.24 1.94 2.21 2.52.17.1.13.37-.07.41-.65.13-1.33-.03-1.91-.35-.13-.07-.29.03-.25.18.23.85.83 1.57 1.57 2.02.66.4 1.44.57 2.21.46.21-.03.35.21.21.37-.43.51-1.05.86-1.72.95-.14.02-.19.2-.08.28.79.57 1.76.88 2.74.88 2.43 0 4.47-1.8 4.71-4.17.26-2.48-1.11-4.66-3.15-5.56z'/%3E%3C/svg%3E") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: all 0.4s ease;
+}
+
+/* 1. Streak Inicial (1 a 2 dias) */
+.streak-low .icon-fire {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    opacity: 0.7;
+}
+.streak-low { color: #2a5298; }
+
+/* 2. Streak Quente (3 a 6 dias) */
+.streak-mid .icon-fire {
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    filter: drop-shadow(0 0 6px rgba(0, 198, 255, 0.6));
+}
+.streak-mid { color: #00c6ff; }
+
+/* 3. Streak Lendário (7+ dias) - NOVO EFEITO VIVO */
+.streak-high .icon-fire {
+    background: linear-gradient(135deg, #00f5d4 0%, #0072ff 100%);
+    filter: drop-shadow(0 0 12px rgba(0, 245, 212, 0.9));
+    animation: queimaSuave 1.4s infinite alternate ease-in-out;
+    transform-origin: bottom center;
+}
+.streak-high { 
+    color: var(--accent-neon);
+    text-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+}
+
+/* Animação com transição mais fluida e elegante */
+@keyframes queimaSuave {
+    0% {
+        transform: scale(1) scaleY(1) rotate(0deg);
+        filter: drop-shadow(0 0 8px rgba(0, 245, 212, 0.6));
+    }
+    50% {
+        transform: scale(1.08) scaleY(1.15) rotate(-2deg);
+        filter: drop-shadow(0 0 14px rgba(0, 245, 212, 0.9));
+    }
+    100% {
+        transform: scale(0.95) scaleY(0.95) rotate(2deg);
+        filter: drop-shadow(0 0 6px rgba(0, 245, 212, 0.5));
+    }
 }
 
 /* --- MODAL DE CONFIRMAÇÃO CUSTOMIZADO --- */
@@ -299,8 +414,8 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Fundo preto transparente */
-    backdrop-filter: blur(4px);    /* Efeito de vidro borrado ao fundo */
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -310,7 +425,6 @@ h1 {
     z-index: 999;
 }
 
-/* Quando adicionamos essa classe via JS, o modal aparece suavemente */
 .modal-overlay.modal-active {
     opacity: 1;
     pointer-events: auto;
@@ -378,4 +492,62 @@ h1 {
 .btn-modal-danger:hover {
     opacity: 0.9;
     box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
+}
+
+/* --- RESPONSIVIDADE PARA MOBILE --- */
+@media (max-width: 600px) {
+    body {
+        padding: 20px 15px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    .subtitle {
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .input-custom, 
+    .select-custom, 
+    .btn-add,
+    .difficulty-buttons {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn-add {
+        padding: 14px 0;
+        height: auto;
+    }
+
+    .btn-tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px 8px;
+    }
+
+    .mission-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .mission-item > div:last-child {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .btn-complete {
+        flex: 1;
+        text-align: center;
+        padding: 10px 0;
+    }
 }
