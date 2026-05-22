@@ -1,3 +1,4 @@
+from app.security import gerar_hash_senha, verificar_senha
 import time
 from fastapi import FastAPI, Depends, Request, HTTPException, status, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -8,8 +9,11 @@ from app.database import get_db, engine
 from app.models import Base, User, Mission
 from datetime import datetime, timezone, date, timedelta
 from app import models
+from fastapi import Cookie
 
 app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
@@ -41,34 +45,27 @@ def atualizar_ofensivas_da_casa(user, db: Session):
 
 # === 2. ROTA DA PÁGINA INICIAL ===
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request, db: Session = Depends(get_db)):
-    # 1. Garante que as tabelas existem no banco
-    Base.metadata.create_all(bind=engine)
+def home(
+    request: Request,
+    db: Session = Depends(get_db),
+    user_id: str = Cookie(None)
+):
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    # 2. Busca o primeiro usuário
-    usuario_real = db.query(User).first()
+    # Busca o usuário logado
+    usuario_real = db.query(User).filter(User.id == int(user_id)).first()
 
-    # 3. Se não existir, cria o usuário "Igor"
     if not usuario_real:
-        usuario_real = User(
-            name="Igor", email="igor@email.com", level=1, xp=30)
-        db.add(usuario_real)
-        db.commit()
-        db.refresh(usuario_real)
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    # 4. Busca as missões QUE PERTENCEM a esse usuário específico
-    # (Em vez de buscar todas as missões globais)
-    missoes_do_usuario = db.query(Mission).filter(
-        Mission.user_id == usuario_real.id).all()
+    # Força o SQLAlchemy a atualizar os dados do usuário e buscar as suas missões frescas
+    db.refresh(usuario_real)
 
-    # 5. Envia o usuário e as missões dele para o HTML
     return templates.TemplateResponse(
         "index.html",
-        {
-            "request": request,
-            "usuario": usuario_real,
-            "missions": missoes_do_usuario  # <-- Garanta que está a enviar as missões aqui!
-        }
+        # <--- Passando apenas o usuario_real atualizado
+        {"request": request, "usuario": usuario_real}
     )
 
 # === 3. ROTA DE CONCLUIR MISSÃO ===
@@ -112,32 +109,32 @@ def complete_mission(mission_id: int, db: Session = Depends(get_db)):
 
 # === 4. ROTA DE CRIAR MISSÃO ===
 @app.post("/missions/create")
-def create_mission(
+def criar_missao(
     title: str = Form(...),
-    xp_reward: int = Form(10),
-    db: Session = Depends(get_db)
+    xp_reward: int = Form(...),
+    is_daily: bool = Form(...),
+    db: Session = Depends(get_db),
+    user_id: str = Cookie(None)  # <--- Lendo quem está logado
 ):
-    # Busca o usuário no banco de dados
-    usuario = db.query(User).first()
+    # Se alguém tentar criar missão sem estar logado, manda pro login
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    # Segurança básica: se não houver usuário criado, impede a ação
-    if not usuario:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
-
-    # Cria o objeto da nova missão vinculando ao ID do usuário encontrado
+    # Cria a nova missão amarrada ao ID do usuário logado
     nova_missao = Mission(
         title=title,
         xp_reward=xp_reward,
-        is_daily=True,
-        user_id=usuario.id  # <-- O vínculo que ativa a Chave Estrangeira
+        is_daily=is_daily,
+        completed=False,
+        streak=0,
+        user_id=int(user_id)  # <--- O segredo está aqui!
     )
 
-    # Salva as alterações no banco de dados
     db.add(nova_missao)
     db.commit()
 
-    # Redireciona de volta para a página inicial com o "Cache-Buster"
-    return RedirectResponse(url=f"/?t={time.time()}", status_code=status.HTTP_303_SEE_OTHER)
+    # Redireciona de volta para a Home atualizada
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
 
 # === 5. ROTA DE DELETAR MISSÃO (AJAX) ===
@@ -151,3 +148,88 @@ def delete_mission(mission_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"sucesso": True}
+
+# === ROTA PARA MOSTRAR A TELA DE CADASTRO (GET) ===
+
+
+@app.get("/cadastro", response_class=HTMLResponse)
+def mostrar_tela_cadastro(request: Request):
+    return templates.TemplateResponse("cadastro.html", {"request": request})
+
+
+# === ROTA PARA PROCESSAR O FORMULÁRIO DE CADASTRO (POST) ===
+@app.post("/cadastro")
+def processar_cadastro(
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    # 1. Verifica se o e-mail já está cadastrado no banco
+    usuario_existente = db.query(User).filter(User.email == email).first()
+    if usuario_existente:
+        raise HTTPException(
+            status_code=400, detail="Este e-mail já está cadastrado.")
+
+    senha_criptografada = gerar_hash_senha(password)
+
+    novo_usuario = User(
+        name=name,
+        email=email,
+        hashed_password=senha_criptografada,
+        level=1,
+        xp=0
+    )
+
+    db.add(novo_usuario)
+    db.commit()
+    db.refresh(novo_usuario)
+    # 5. Por enquanto, redireciona para a Home (no futuro será para o Login)
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+# === ROTA PARA MOSTRAR A TELA DE LOGIN (GET) ===
+
+
+@app.get("/login", response_class=HTMLResponse)
+def mostrar_tela_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+# === ROTA PARA PROCESSAR O LOGIN (POST) ===
+
+
+@app.post("/login")
+def processar_login(
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    usuario = db.query(User).filter(User.email == email).first()
+
+    if not usuario or not verificar_senha(password, usuario.hashed_password):
+        raise HTTPException(
+            status_code=400, detail="E-mail ou senha incorretos.")
+
+    print(f"Usuário {usuario.name} logado com sucesso!")
+
+    # 1. Criamos a resposta de redirecionamento
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+    # 2. Salvamos o ID do usuário num cookie seguro dentro do navegador
+    response.set_cookie(key="user_id", value=str(usuario.id), httponly=True)
+
+    return response
+
+# === ROTA PARA FAZER LOGOUT (SAIR) ===
+
+
+@app.get("/logout")
+def processar_logout():
+    # 1. Prepara o redirecionamento para a tela de login
+    response = RedirectResponse(
+        url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    # 2. Apaga o cookie do navegador definindo o valor como vazio
+    response.delete_cookie(key="user_id")
+
+    print("Usuário deslogado com sucesso. Cookie removido!")
+    return response

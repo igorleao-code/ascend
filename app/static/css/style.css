@@ -23,9 +23,13 @@ body {
     justify-content: center;
 }
 
+/* CONTAINER PRINCIPAL: Centralizado e agindo como base de largura */
 .container {
     width: 100%;
     max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -47,13 +51,15 @@ h1 {
     margin-bottom: 35px;
 }
 
-/* --- PLAYER STATUS CARD --- */
-.status-card {
+/* --- CARDS E PAINÉIS PADRONIZADOS (Largura 100% Simétrica) --- */
+.status-card, .creation-panel {
     background: var(--bg-panel);
     border: 1px solid var(--border-color);
     padding: 22px;
     border-radius: 12px;
     margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box; /* Garante que padding não estoure a largura */
 }
 
 .player-info {
@@ -108,18 +114,7 @@ h1 {
     text-align: right;
 }
 
-/* --- PAINEL DE CRIAÇÃO --- */
-.creation-panel {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
+/* --- FORMULÁRIO DE CRIAÇÃO (INDEX) --- */
 .panel-title {
     margin-bottom: 15px;
     font-size: 12px;
@@ -131,16 +126,15 @@ h1 {
 
 .form-group {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column; /* Organização padrão em coluna */
+    align-items: stretch;
+    gap: 15px;
     width: 100%;
     box-sizing: border-box;
-    flex-wrap: wrap;
 }
 
 .input-custom {
-    flex: 1;                
-    min-width: 200px;       
+    width: 100%;                  
     padding: 12px 15px;     
     background-color: #222; 
     color: #fff;
@@ -156,25 +150,16 @@ h1 {
     border-color: var(--blue-royal);
 }
 
-.select-custom {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    outline: none;
-}
-
-/* Botões de Dificuldade */
+/* Alinhamento horizontal dos botões extras na criação */
 .difficulty-buttons {
     display: flex;
     gap: 10px;
     margin: 0;
+    width: 100%;
 }
 
 .btn-diff {
+    flex: 1; /* Distribui os botões de dificuldade igualmente */
     padding: 10px 14px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
@@ -184,23 +169,25 @@ h1 {
     font-weight: bold;
     font-size: 13px;
     transition: 0.2s;
+    text-align: center;
     white-space: nowrap;
 }
 
-/* Botão de Envio (Gradiente) */
+/* Botão de Envio de 100% de largura */
 .btn-add {
     background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 14px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 15px;
     font-weight: bold;
     transition: transform 0.2s, box-shadow 0.3s;
     box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
-    flex-shrink: 0;          
-    white-space: nowrap;     
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .btn-add:hover {
@@ -208,45 +195,14 @@ h1 {
     box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
 }
 
-/* Sugestões Rápidas */
-.suggestions-container {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 15px;
-}
-
-.suggestion-label {
-    font-size: 12px;
-    color: #555;
-}
-
-.btn-suggestion {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: #AAA;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-suggestion:hover {
-    border-color: var(--blue-royal);
-    color: var(--text-main);
-    background: rgba(65, 105, 225, 0.05);
-}
-
 /* --- ESTILIZAÇÃO DOS BOTÕES DAS ABAS --- */
 .btn-tab {
-    padding: 8px 16px;
+    padding: 10px 20px;
     background: #2a2a2a;
     color: #aaaaaa;
     border: 1px solid #444;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 6px;
     font-weight: 600;
     font-size: 13px;
     transition: all 0.2s ease;
@@ -267,10 +223,10 @@ h1 {
 .mission-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 10px 0 0 0;
     max-height: 400px;    
-    overflow-y: auto;     
-    padding-right: 5px;
+    overflow-y: auto;    
+    width: 100%;
 }
 
 .mission-list::-webkit-scrollbar {
@@ -290,6 +246,8 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .mission-title {
@@ -344,7 +302,7 @@ h1 {
     background: #4169E1;
 }
 
-/* --- SISTEMA DE OFENSIVAS (FOGO GRADIENTE - MODELO MINIMALISTA) --- */
+/* --- SISTEMA DE OFENSIVAS --- */
 .streak-badge {
     display: inline-flex;
     align-items: center;
@@ -365,21 +323,18 @@ h1 {
     transition: all 0.4s ease;
 }
 
-/* 1. Streak Inicial (1 a 2 dias) */
 .streak-low .icon-fire {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     opacity: 0.7;
 }
 .streak-low { color: #2a5298; }
 
-/* 2. Streak Quente (3 a 6 dias) */
 .streak-mid .icon-fire {
     background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
     filter: drop-shadow(0 0 6px rgba(0, 198, 255, 0.6));
 }
 .streak-mid { color: #00c6ff; }
 
-/* 3. Streak Lendário (7+ dias) - NOVO EFEITO VIVO */
 .streak-high .icon-fire {
     background: linear-gradient(135deg, #00f5d4 0%, #0072ff 100%);
     filter: drop-shadow(0 0 12px rgba(0, 245, 212, 0.9));
@@ -391,23 +346,13 @@ h1 {
     text-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
 }
 
-/* Animação com transição mais fluida e elegante */
 @keyframes queimaSuave {
-    0% {
-        transform: scale(1) scaleY(1) rotate(0deg);
-        filter: drop-shadow(0 0 8px rgba(0, 245, 212, 0.6));
-    }
-    50% {
-        transform: scale(1.08) scaleY(1.15) rotate(-2deg);
-        filter: drop-shadow(0 0 14px rgba(0, 245, 212, 0.9));
-    }
-    100% {
-        transform: scale(0.95) scaleY(0.95) rotate(2deg);
-        filter: drop-shadow(0 0 6px rgba(0, 245, 212, 0.5));
-    }
+    0% { transform: scale(1) scaleY(1) rotate(0deg); filter: drop-shadow(0 0 8px rgba(0, 245, 212, 0.6)); }
+    50% { transform: scale(1.08) scaleY(1.15) rotate(-2deg); filter: drop-shadow(0 0 14px rgba(0, 245, 212, 0.9)); }
+    100% { transform: scale(0.95) scaleY(0.95) rotate(2deg); filter: drop-shadow(0 0 6px rgba(0, 245, 212, 0.5)); }
 }
 
-/* --- MODAL DE CONFIRMAÇÃO CUSTOMIZADO --- */
+/* --- MODAL DE CONFIRMAÇÃO --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -496,58 +441,12 @@ h1 {
 
 /* --- RESPONSIVIDADE PARA MOBILE --- */
 @media (max-width: 600px) {
-    body {
-        padding: 20px 15px;
-    }
-
-    h1 {
-        font-size: 28px;
-    }
-
-    .subtitle {
-        margin-bottom: 25px;
-    }
-
-    .form-group {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-
-    .input-custom, 
-    .select-custom, 
-    .btn-add,
-    .difficulty-buttons {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .btn-add {
-        padding: 14px 0;
-        height: auto;
-    }
-
-    .btn-tab {
-        flex: 1;
-        text-align: center;
-        padding: 12px 8px;
-    }
-
-    .mission-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-    }
-
-    .mission-item > div:last-child {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .btn-complete {
-        flex: 1;
-        text-align: center;
-        padding: 10px 0;
-    }
+    body { padding: 20px 15px; }
+    h1 { font-size: 28px; }
+    .subtitle { margin-bottom: 25px; }
+    .form-group { gap: 12px; }
+    .btn-tab { flex: 1; text-align: center; padding: 12px 8px; }
+    .mission-item { flex-direction: column; align-items: flex-start; gap: 15px; padding: 15px; }
+    .mission-item > div:last-child { width: 100%; justify-content: space-between; }
+    .btn-complete { flex: 1; text-align: center; padding: 10px 0; }
 }

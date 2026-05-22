@@ -7,109 +7,122 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}?v=1.2">
 </head>
 <body>
-    <div class="container">
-        <h1>ASCEND</h1>
-        <div class="subtitle">Level Up Your Life</div>
-
-        <div class="status-card">
-            <div class="player-info">
-                <span class="player-name">⚡ {{ usuario.name }}</span>
-                <span class="player-level">NÍVEL {{ usuario.level }}</span>
+    <div class="container" style="display: block;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; width: 100%;">
+            <div style="text-align: left;">
+                <h1 style="margin: 0; line-height: 1.1;">ASCEND</h1>
+                <div class="subtitle" style="margin: 5px 0 0 0;">Level Up Your Life</div>
             </div>
-            <div class="xp-container">
-                <div class="xp-bar-fill" style="--target-width: {{ usuario.xp }}%;"></div>
-            </div>
-            <span class="xp-text">{{ usuario.xp }} / 100 XP</span>
-        </div>
-
-        <div class="creation-panel">
-            <div class="panel-title">Nova Missão</div>
             
-            <form action="/missions/create" method="POST" class="form-group">
-                <input type="text" name="title" placeholder="O que você vai dominar hoje?" required class="input-custom">
-                
-                <input type="hidden" name="xp_reward" id="xp_reward" value="10">
-                <input type="hidden" name="is_daily" value="True">
-                
-                <div class="difficulty-buttons">
-                    <button type="button" class="btn-diff" onclick="selectDifficulty(10, this, '#2ecc71')" style="border: 2px solid #2ecc71; background: #2ecc71; color: white;">Fácil (+10)</button>
-                    <button type="button" class="btn-diff" onclick="selectDifficulty(20, this, '#f1c40f')">Média (+20)</button>
-                    <button type="button" class="btn-diff" onclick="selectDifficulty(30, this, '#e74c3c')">Difícil (+30)</button>
+            <a href="/logout" style="color: #e74c3c; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #e74c3c; padding: 6px 14px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; white-space: nowrap;">
+                Sair
+            </a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+
+            <div class="status-card">
+                <div class="player-info">
+                    <span class="player-name">⚡ {{ usuario.name }}</span>
+                    <span class="player-level">NÍVEL {{ usuario.level }}</span>
                 </div>
+                <div class="xp-container">
+                    <div class="xp-bar-fill" style="--target-width: {{ usuario.xp }}%;"></div>
+                </div>
+                <span class="xp-text">{{ usuario.xp }} / 100 XP</span>
+            </div>
+
+            <div class="creation-panel">
+                <div class="panel-title">Nova Missão</div>
                 
-                <button type="submit" class="btn-add">Adicionar Missão</button>
-            </form>
-        </div>
+                <form action="/missions/create" method="POST" class="form-group">
+                    <input type="text" name="title" placeholder="O que você vai dominar hoje?" required class="input-custom">
+                    
+                    <input type="hidden" name="xp_reward" id="xp_reward" value="10">
+                    <input type="hidden" name="is_daily" value="True">
+                    
+                    <div class="difficulty-buttons">
+                        <button type="button" class="btn-diff" onclick="selectDifficulty(10, this, '#2ecc71')" style="border: 2px solid #2ecc71; background: #2ecc71; color: white;">Fácil (+10)</button>
+                        <button type="button" class="btn-diff" onclick="selectDifficulty(20, this, '#f1c40f')">Média (+20)</button>
+                        <button type="button" class="btn-diff" onclick="selectDifficulty(30, this, '#e74c3c')">Difícil (+30)</button>
+                    </div>
+                    
+                    <button type="submit" class="btn-add">Adicionar Missão</button>
+                </form>
+            </div>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button onclick="showTab('pending')" class="btn-tab active">Pendentes</button>
-            <button onclick="showTab('history')" class="btn-tab">Histórico</button>
-        </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                <button onclick="showTab('pending')" class="btn-tab active">Pendentes</button>
+                <button onclick="showTab('history')" class="btn-tab">Histórico</button>
+            </div>
 
-        <div id="pending-tab">
-            <ul class="mission-list">
-                {% for missao in usuario.missions %}
-                    {% if not missao.completed %}
-                        <li class="mission-item" id="mission-{{ missao.id }}">
-                            <div>
-                                <span class="mission-title">
-                                    {{ missao.title }}
-                                    {% if missao.streak > 0 %}
-                                        <span class="streak-badge {% if missao.streak >= 7 %}streak-high{% elif missao.streak >= 3 %}streak-mid{% else %}streak-low{% endif %}">
-                                            <span class="icon-fire"></span>
-                                            {{ missao.streak }}d
-                                        </span>
-                                    {% endif %}
-                                </span>
-                                <span class="mission-xp">+{{ missao.xp_reward }} XP</span>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <form action="/missions/{{ missao.id }}/complete" method="POST" style="margin:0;">
-                                    <button type="submit" class="btn-complete">Concluir</button>
-                                </form>
-                                <button onclick="confirmDelete('{{ missao.id }}')" style="background:none; border:none; cursor:pointer; font-size:16px;">🗑️</button>
-                            </div>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <p style="color: #666; font-size: 14px;">Nenhuma missão pendente para hoje! 🎯</p>
-                {% endfor %}
-            </ul>
-        </div>
+            <div id="pending-tab">
+                <ul class="mission-list">
+                    {% for missao in usuario.missions %}
+                        {% if not missao.completed %}
+                            <li class="mission-item" id="mission-{{ missao.id }}">
+                                <div>
+                                    <span class="mission-title">
+                                        {{ missao.title }}
+                                        {% if missao.streak > 0 %}
+                                            <span class="streak-badge {% if missao.streak >= 7 %}streak-high{% elif missao.streak >= 3 %}streak-mid{% else %}streak-low{% endif %}">
+                                                <span class="icon-fire"></span>
+                                                {{ missao.streak }}d
+                                            </span>
+                                        {% endif %}
+                                    </span>
+                                    <span class="mission-xp">+{{ missao.xp_reward }} XP</span>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <form action="/missions/{{ missao.id }}/complete" method="POST" style="margin:0;">
+                                        <button type="submit" class="btn-complete">Concluir</button>
+                                    </form>
+                                    <button onclick="confirmDelete('{{ missao.id }}')" style="background:none; border:none; cursor:pointer; font-size:16px;">🗑️</button>
+                                </div>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <p style="color: #666; font-size: 14px;">Nenhuma missão pendente para hoje! 🎯</p>
+                    {% endfor %}
+                </ul>
+            </div>
 
-        <div id="history-tab" style="display: none;">
-            <ul class="mission-list">
-                {% for missao in usuario.missions %}
-                    {% if missao.completed %}
-                        <li class="mission-item">
-                            <div>
-                                <span class="mission-title" style="text-decoration: line-through; color: #666;">
-                                    {{ missao.title }}
-                                    {% if missao.streak > 0 %}
-                                        <span class="streak-badge {% if missao.streak >= 7 %}streak-high{% elif missao.streak >= 3 %}streak-mid{% else %}streak-low{% endif %}">
-                                            <span class="icon-fire"></span>
-                                            {{ missao.streak }}d
-                                        </span>
-                                    {% endif %}
-                                </span>
-                                <span class="mission-xp" style="color: #444;">Recompensa resgatada</span>
-                            </div>
-                            <div>
-                                <span class="status-done">Concluída</span>
-                            </div>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <p style="color: #666; font-size: 14px;">Nenhuma missão concluída ainda. Comece a subir de nível! 🚀</p>
-                {% endfor %}
-            </ul>
-        </div>
-    </div> <div class="modal-overlay" id="modal-delete">
+            <div id="history-tab" style="display: none;">
+                <ul class="mission-list">
+                    {% for missao in usuario.missions %}
+                        {% if missao.completed %}
+                            <li class="mission-item">
+                                <div>
+                                    <span class="mission-title" style="text-decoration: line-through; color: #666;">
+                                        {{ missao.title }}
+                                        {% if missao.streak > 0 %}
+                                            <span class="streak-badge {% if missao.streak >= 7 %}streak-high{% elif missao.streak >= 3 %}streak-mid{% else %}streak-low{% endif %}">
+                                                <span class="icon-fire"></span>
+                                                {{ missao.streak }}d
+                                            </span>
+                                        {% endif %}
+                                    </span>
+                                    <span class="mission-xp" style="color: #444;">Recompensa resgatada</span>
+                                </div>
+                                <div>
+                                    <span class="status-done">Concluída</span>
+                                </div>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <p style="color: #666; font-size: 14px;">Nenhuma missão concluída ainda. Comece a subir de nível! 🚀</p>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div> </div> 
+
+    <div class="modal-overlay" id="modal-delete">
         <div class="modal-card">
-            <div class="modal-text">Deseja mesmo banir esta missão do seu registro?</div>
+            <div class="modal-text">Deseja mesmo apagar esta missão do seu registro?</div>
             <div class="modal-actions">
                 <button onclick="closeModal()" class="btn-modal-secondary">Cancelar</button>
-                <button id="btn-confirm-delete" class="btn-modal-danger">Deletar</button>
+                <button id="btn-confirm-delete" class="btn-modal-danger">Excluir</button>
             </div>
         </div>
     </div>
@@ -117,7 +130,6 @@
     <script>
         let missionIdToDelete = null;
 
-        // Lógica dos Botões de Dificuldade
         function selectDifficulty(xp, element, color) {
             document.getElementById('xp_reward').value = xp;
             
@@ -132,7 +144,6 @@
             element.style.color = 'white';
         }
 
-        // Lógica de Abas
         function showTab(tabName) {
             document.getElementById('pending-tab').style.display = (tabName === 'pending') ? 'block' : 'none';
             document.getElementById('history-tab').style.display = (tabName === 'history') ? 'block' : 'none';
@@ -145,7 +156,6 @@
             }
         }
 
-        // Lógica do Modal e AJAX de Deletar
         function confirmDelete(id) {
             missionIdToDelete = id;
             document.getElementById('modal-delete').classList.add('modal-active');

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCEND - Entrar</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}?v=1.2">
+</head>
+<body>
+    <div class="container">
+        <h1>ASCEND</h1>
+        <div class="subtitle">Faça login para continuar sua jornada</div>
+
+        <div class="creation-panel">
+            <div class="panel-title">Entrar na Conta</div>
+            
+            <form action="/login" method="POST" class="form-group">
+                <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 5px; text-align: left;">E-mail</label>
+                <input type="email" name="email" placeholder="seu@email.com" required class="input-custom" style="margin-bottom: 15px;">
+                
+                <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 5px; text-align: left;">Senha</label>
+                <input type="password" name="password" placeholder="Sua senha secreta" required class="input-custom" style="margin-bottom: 20px;">
+                
+                <button type="submit" class="btn-add">Entrar</button>
+            </form>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 14px; color: #666;">
+            Não tem uma conta? <a href="/cadastro" style="color: #2ecc71; text-decoration: none; font-weight: bold;">Cadastre-se aqui</a>
+        </div>
+    </div>
+</body>
+</html>

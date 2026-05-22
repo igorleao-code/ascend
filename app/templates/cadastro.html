@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCEND - Criar Conta</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}?v=1.2">
+</head>
+<body>
+    <div class="container">
+        <h1>ASCEND</h1>
+        <div class="subtitle">Crie sua conta e comece a subir de nível</div>
+
+        <div class="creation-panel">
+            <div class="panel-title">Novo Cadastro</div>
+            
+            <form action="/cadastro" method="POST" class="form-group">
+                <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 5px; text-align: left;">Nome do Usuário</label>
+                <input type="text" name="name" placeholder="Como quer ser chamado?" required class="input-custom" style="margin-bottom: 15px;">
+
+                <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 5px; text-align: left;">E-mail</label>
+                <input type="email" name="email" placeholder="seu@email.com" required class="input-custom" style="margin-bottom: 15px;">
+                
+                <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 5px; text-align: left;">Senha</label>
+                <input type="password" name="password" placeholder="Crie uma senha segura" required class="input-custom" style="margin-bottom: 20px;">
+                
+                <button type="submit" class="btn-add" style="background: #2ecc71;">Criar Minha Conta</button>
+            </form>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 14px; color: #666;">
+            Já possui uma conta? <a href="/login" style="color: #3498db; text-decoration: none; font-weight: bold;">Faça login aqui</a>
+        </div>
+    </div>
+</body>
+</html>
